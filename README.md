@@ -25,3 +25,4 @@ This demonstration integrates several tools and technologies to showcase the pow
 - Role in this project: With the GitOps principle, any change to our infrastructure or application state will start as a change in our Git repository. Tekton Pipelines will continuously ensure that our live environment matches this desired state, making the infrastructure-as-code paradigm a reality.
 
 ## [001 - Bridge Network Setup - `br0` - Optional](./docs/bridge-network.md)
+## [002 - Hub Cluster Setup - hubztp](./docs/hubcluster-setup.md)
