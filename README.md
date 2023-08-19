@@ -14,7 +14,7 @@
   - [002 - Hub Cluster Setup - hubztp](#002---hub-cluster-setup---hubztp)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
       - [Preparation](#preparation)
-      - [Script Execution:](#script-execution)
+      - [Script Execution](#script-execution)
     - [Generating ISO Image using Assisted Installer](#generating-iso-image-using-assisted-installer)
     - [Important Notes](#important-notes-1)
 
@@ -85,7 +85,7 @@ The script uses QEMU to create images and `virt-install` to set up the VMs. It s
 - VMs are associated with the `br0` network bridge created in the previous step.
 - A unique MAC address is assigned to each VM for identification.
 
-#### Script Execution:
+#### Script Execution
 Navigate to the `001-hubcluster-setup` directory and run:
 ```
 cd 001-hubcluster-setup
@@ -99,7 +99,7 @@ Post VM setup, the next step is to generate the necessary ISO image to provision
 - Visit [Red Hat OpenShift Cluster Manager](https://console.redhat.com/).
 - Navigate to the [Assisted Installer](https://console.redhat.com/openshift/create/datacenter) service.
 - Follow the instructions to generate an ISO image tailored for your hub cluster setup. This image will be used to boot and provision the nodes.
-![Hub Cluster Setup](images/hub-cluster.png)
+![Hub Cluster Setup](docs/images/hub-cluster.png)
 
 ### Important Notes
 - Ensure that all prerequisites, especially QEMU and `virt-install`, are already installed and configured on the system.
