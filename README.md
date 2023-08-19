@@ -12,11 +12,12 @@
     - [Post-setup Configuration Details](#post-setup-configuration-details)
     - [Important Notes](#important-notes)
   - [002 - Hub Cluster Setup - hubztp](#002---hub-cluster-setup---hubztp)
+    - [Generating ISO Image using Assisted Installer](#generating-iso-image-using-assisted-installer)
+    - [Important Notes](#important-notes-1)
+    - [Downloading the ISO Image for `hubztp`](#downloading-the-iso-image-for-hubztp)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
       - [Preparation](#preparation)
       - [Script Execution](#script-execution)
-    - [Generating ISO Image using Assisted Installer](#generating-iso-image-using-assisted-installer)
-    - [Important Notes](#important-notes-1)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -76,6 +77,28 @@ Executing this script will automate the creation of the `br0` bridge using the e
 ## 002 - Hub Cluster Setup - hubztp
 In this section, we'll focus on setting up a hub cluster consisting of three nodes. This cluster setup will leverage virtual machines (VMs) to simulate bare metal nodes. For ease of setup, we have a scripted approach.
 
+### Generating ISO Image using Assisted Installer
+Post VM setup, the next step is to generate the necessary ISO image to provision the hub cluster nodes:
+- Visit [Red Hat OpenShift Cluster Manager](https://console.redhat.com/).
+- Navigate to the [Assisted Installer](https://console.redhat.com/openshift/create/datacenter) service.
+- Follow the instructions to generate an ISO image tailored for your hub cluster setup. This image will be used to boot and provision the nodes.
+![Hub Cluster Setup](docs/images/hub-cluster.png)
+
+![Hub Cluster Add Host](docs/images/hub-cluster-add-host.png)
+
+![Hub Cluster Generate Iso](docs/images/hub-cluster-generate-discover-iso.png)
+
+### Important Notes
+- Ensure that all prerequisites, especially QEMU and `virt-install`, are already installed and configured on the system.
+- As the VMs are simulating bare metal nodes, ensure the ISO generated from the Assisted Installer is compatible and has the necessary drivers and configurations.
+- Monitoring the provisioning process from the Assisted Installer on the Red Hat OpenShift Cluster Manager portal will give you a real-time status of each node and the overall cluster setup.
+
+### Downloading the ISO Image for `hubztp`
+After generating the ISO image using Assisted Installer, the next step is to download it. This image contains all the configurations and software needed to provision our simulated bare metal nodes, i.e., the virtual machines we are going to set up in the next section.
+
+Once the ISO generation is complete, you'll find a download option for the ISO in the Assisted Installer section of the Red Hat OpenShift Cluster Manager portal.
+![Hub Cluster Download ISO](docs/images/hub-cluster-download-iso.png)
+
 ### Setting Up Hub Cluster VMs
 #### Preparation
 The script uses QEMU to create images and `virt-install` to set up the VMs. It sets up three nodes, each with 50GB of RAM and 16 vCPUs, using the `qcow2` format for the virtual hard drives.
@@ -93,16 +116,3 @@ bash 002-create-hubvms-mno.sh
 ```
 
 This script initializes the VMs and starts them.
-
-### Generating ISO Image using Assisted Installer
-Post VM setup, the next step is to generate the necessary ISO image to provision the hub cluster nodes:
-- Visit [Red Hat OpenShift Cluster Manager](https://console.redhat.com/).
-- Navigate to the [Assisted Installer](https://console.redhat.com/openshift/create/datacenter) service.
-- Follow the instructions to generate an ISO image tailored for your hub cluster setup. This image will be used to boot and provision the nodes.
-![Hub Cluster Setup](docs/images/hub-cluster.png)
-
-### Important Notes
-- Ensure that all prerequisites, especially QEMU and `virt-install`, are already installed and configured on the system.
-- As the VMs are simulating bare metal nodes, ensure the ISO generated from the Assisted Installer is compatible and has the necessary drivers and configurations.
-- Monitoring the provisioning process from the Assisted Installer on the Red Hat OpenShift Cluster Manager portal will give you a real-time status of each node and the overall cluster setup.
-
