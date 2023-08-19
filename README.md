@@ -18,6 +18,7 @@
     - [Attaching Additional Storage to Hub Cluster VMs for ODF](#attaching-additional-storage-to-hub-cluster-vms-for-odf)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
     - [Completing Cluster Installation via Red Hat Console](#completing-cluster-installation-via-red-hat-console)
+  - [003 - Setting Up Sushy Tool](#003---setting-up-sushy-tool)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -146,3 +147,5 @@ This script initializes the VMs and starts them.
 ### Completing Cluster Installation via Red Hat Console
 After initializing and starting the VMs as part of the hub cluster setup, the next step involves finalizing the cluster installation process through the Red Hat Console. Once the cluster is up and running you can download the kubeconfig file from Red Hat Console page.
 
+## 003 - Setting Up Sushy Tool
+The Sushy tool serves as an emulator for Redfish, which is a standard protocol for managing servers. This guide will walk you through the steps to set up the Sushy tool by following the steps outlined in the [cloudcult.dev](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/) blog post. All scripts is placed in the 002-sushy-tool-setup/001-sushy-setup.sh file.

@@ -1,0 +1,1 @@
+- Sushy Tool Reference [Brandon B. Jozsa](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/)
