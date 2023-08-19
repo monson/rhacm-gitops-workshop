@@ -17,6 +17,7 @@
     - [Downloading the ISO Image for `hubztp`](#downloading-the-iso-image-for-hubztp)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
       - [Script Execution](#script-execution)
+  - [003 - Attaching Additional Storage to Hub Cluster VMs for ODF](#003---attaching-additional-storage-to-hub-cluster-vms-for-odf)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -116,3 +117,31 @@ bash 002-create-hubvms-mno.sh
 ```
 
 This script initializes the VMs and starts them.
+
+## 003 - Attaching Additional Storage to Hub Cluster VMs for ODF
+To accommodate the storage needs of the OpenShift Data Foundation (ODF) component, an additional 50G of storage will be attached to each node in the hub cluster. Using the QEMU tool, a 50G virtual disk image in the qcow2 format is created for each node in the hub cluster.
+Navigate to the `001-hubcluster-setup` directory and run:
+```
+cd 001-hubcluster-setup
+bash 003-attach-disk-for-odf.sh
+```
+
+After attaching the storage to the VMs, it's necessary to ensure that the new disk does not retain any old metadata.
+
+To SSH into the VMs, you'll first need their IP addresses. These can be obtained in two primary ways:
+- From the console.redhat.com cluster host list page. Navigate to the appropriate section and look for the IP addresses associated with the nodes of the hub cluster.
+- From your router's configuration or management interface. Depending on your router's make and model, navigate to the connected devices or DHCP clients section to locate the IP addresses assigned to the VMs.
+
+Once you have the IP addresses, SSH into each VM:
+```
+ssh core@[VM_IP_ADDRESS]
+```
+After accessing the VM, run the following command to clear any existing filesystem signatures:
+```
+sudo wipefs -a /dev/vdb
+```
+This step ensures the additional storage attached to each VM is ready and optimized for ODF usage.
+
+> Note: These steps are essential for the proper functioning of the ODF storage component in the hub cluster. They ensure sufficient storage capacity and a fresh, unformatted disk to be managed and used by ODF.
+
+
