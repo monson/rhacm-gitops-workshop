@@ -15,9 +15,9 @@
     - [Generating ISO Image using Assisted Installer](#generating-iso-image-using-assisted-installer)
     - [Important Notes](#important-notes-1)
     - [Downloading the ISO Image for `hubztp`](#downloading-the-iso-image-for-hubztp)
+    - [Attaching Additional Storage to Hub Cluster VMs for ODF](#attaching-additional-storage-to-hub-cluster-vms-for-odf)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
       - [Script Execution](#script-execution)
-  - [003 - Attaching Additional Storage to Hub Cluster VMs for ODF](#003---attaching-additional-storage-to-hub-cluster-vms-for-odf)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -99,26 +99,7 @@ After generating the ISO image using Assisted Installer, the next step is to dow
 Once the ISO generation is complete, you'll find a download option for the ISO in the Assisted Installer section of the Red Hat OpenShift Cluster Manager portal.
 ![Hub Cluster Download ISO](docs/images/hub-cluster-download-iso.png)
 
-### Setting Up Hub Cluster VMs
-The script uses QEMU to create images and `virt-install` to set up the VMs. It sets up three nodes, each with 50GB of RAM and 16 vCPUs, using the `qcow2` format for the virtual hard drives.
-
-- Each VM image is created with a size of 200GB.
-- The virtual machines are named with a pattern (`${CLUSTER_NAME}-master-x`).
-- VMs are associated with the `br0` network bridge created in the previous step.
-- A unique MAC address is assigned to each VM for identification.
-
-#### Script Execution
-> Caution: The ISO location in the script is hardcoded. Ensure to download the ISO to the specified location: `/opt/ssd/boot/discovery_image_${CLUSTER_NAME}.iso` or adjust the script accordingly.
-
-Navigate to the `001-hubcluster-setup` directory and run:
-```
-cd 001-hubcluster-setup
-bash 002-create-hubvms-mno.sh
-```
-
-This script initializes the VMs and starts them.
-
-## 003 - Attaching Additional Storage to Hub Cluster VMs for ODF
+### Attaching Additional Storage to Hub Cluster VMs for ODF
 To accommodate the storage needs of the OpenShift Data Foundation (ODF) component, an additional 50G of storage will be attached to each node in the hub cluster. Using the QEMU tool, a 50G virtual disk image in the qcow2 format is created for each node in the hub cluster.
 Navigate to the `001-hubcluster-setup` directory and run:
 ```
@@ -144,4 +125,22 @@ This step ensures the additional storage attached to each VM is ready and optimi
 
 > Note: These steps are essential for the proper functioning of the ODF storage component in the hub cluster. They ensure sufficient storage capacity and a fresh, unformatted disk to be managed and used by ODF.
 
+### Setting Up Hub Cluster VMs
+The script uses QEMU to create images and `virt-install` to set up the VMs. It sets up three nodes, each with 50GB of RAM and 16 vCPUs, using the `qcow2` format for the virtual hard drives.
+
+- Each VM image is created with a size of 200GB.
+- The virtual machines are named with a pattern (`${CLUSTER_NAME}-master-x`).
+- VMs are associated with the `br0` network bridge created in the previous step.
+- A unique MAC address is assigned to each VM for identification.
+
+#### Script Execution
+> Caution: The ISO location in the script is hardcoded. Ensure to download the ISO to the specified location: `/opt/ssd/boot/discovery_image_${CLUSTER_NAME}.iso` or adjust the script accordingly.
+
+Navigate to the `001-hubcluster-setup` directory and run:
+```
+cd 001-hubcluster-setup
+bash 002-create-hubvms-mno.sh
+```
+
+This script initializes the VMs and starts them.
 
