@@ -21,6 +21,11 @@
   - [003 - Setting Up Sushy Tool](#003---setting-up-sushy-tool)
     - [Install and configure Sushy](#install-and-configure-sushy)
     - [Validate](#validate)
+  - [004 - Local Storage Setup for OpenShift Data Foundation](#004---local-storage-setup-for-openshift-data-foundation)
+    - [Installing the Local Storage Operator](#installing-the-local-storage-operator)
+    - [Node Preparation](#node-preparation)
+    - [Auto Device Discovery \& Persistent Volumes Creation](#auto-device-discovery--persistent-volumes-creation)
+    - [LocalVolumeSet Creation](#localvolumeset-creation)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -189,6 +194,67 @@ If you want details on a specific VM, use the `Id` from the above command and qu
 curl http://localhost:8000/redfish/v1/Systems/<VM_Id>
 ```
 Replace `<VM_Id>` with the ID of the VM you're interested in. This should give you detailed information about that particular VM.
+
+## 004 - Local Storage Setup for OpenShift Data Foundation
+Setting up local storage is a foundational step before deploying OpenShift Data Foundation (ODF) on Red Hat OpenShift Container Platform (OCP).
+
+### Installing the Local Storage Operator
+- **Namespace Creation:** Initialize the openshift-local-storage namespace.
+```
+oc apply -f 003-setup-local-storage/001-namespace-local-storage.yaml
+```
+- **Operator Group Setup:** Configure the operator group for the Local Storage Operator in this namespace.
+```
+oc apply -f 003-setup-local-storage/002-operatorgroup-local-storage.yaml
+```
+- **Subscription:** Subscribe to the local-storage-operator. Make sure the channel matches your OCP version.
+```
+oc apply -f 003-setup-local-storage/003-subscription-local-storage.yaml
+```
+> Note: Ensure the Local Storage Operator's channel aligns with your OCP version.
+
+### Node Preparation
+- **Node Labeling:** Add the ocs label to each OCP node equipped with storage devices. ODF uses this label to ascertain which nodes to target for its components.
+Command (replace `<NodeName>` with your node's name):
+```
+oc label node <NodeName> cluster.ocs.openshift.io/openshift-storage=''
+```
+
+- **Node Requirements:** At least three similarly equipped nodes are necessary. These nodes should be fitted with SSDs or NVMe devices.
+
+### Auto Device Discovery & Persistent Volumes Creation
+From versions OCS v4.6 onwards:
+- **Auto-Discovery:** The Local Storage Operator can now automatically discover devices on labeled OCP nodes.
+```
+oc apply -f 003-setup-local-storage/004-local-volume-discovery.yaml
+```
+- **LocalVolumeDiscovery Resource:** After labeling, instantiate this resource. It will generate localvolumediscoveryresults detailing each disk for every labeled OCP node.
+To inspect discovery results:
+```
+oc get localvolumediscoveries -n openshift-local-storage
+oc get localvolumediscoveryresults -n openshift-local-storage
+```
+
+### LocalVolumeSet Creation
+For ODF:
+- **Disk Requirements:** Use only raw block SSDs or NVMe devices. The operator partitions these raw blocks for different requirements.
+- **LocalVolumeSet Creation:** Utilize the YAML configuration to initiate the LocalVolumeSet.
+```
+oc apply -f 003-setup-local-storage/005-local-volume-set.yaml
+```
+- **Post-Creation Checks:** Confirm that PVs are created for each disk on the labeled nodes after creating the resource.
+
+To validate the setup:
+```
+oc get pods -n openshift-local-storage | grep "diskmaker-manager"
+oc get pv -n openshift-local-storage
+```
+
+
+
+
+
+
 
 
 

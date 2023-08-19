@@ -1,0 +1,22 @@
+apiVersion: local.storage.openshift.io/v1alpha1
+kind: LocalVolumeSet
+metadata:
+  name: local-vs
+  namespace: openshift-local-storage
+spec:
+  nodeSelector:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: cluster.ocs.openshift.io/openshift-storage
+            operator: In
+            values:
+              - ""
+  deviceInclusionSpec:
+    deviceTypes:
+    - disk
+    - part
+    minSize: 1Gi
+    maxSize: 10Ti
+  storageClassName: local-vs
+  volumeMode: Block
+  maxDeviceCount: 1
