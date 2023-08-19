@@ -107,6 +107,8 @@ The script uses QEMU to create images and `virt-install` to set up the VMs. It s
 - A unique MAC address is assigned to each VM for identification.
 
 #### Script Execution
+> Caution: The ISO location in the script is hardcoded. Ensure to download the ISO to the specified location: `/opt/ssd/boot/discovery_image_${CLUSTER_NAME}.iso` or adjust the script accordingly.
+
 Navigate to the `001-hubcluster-setup` directory and run:
 ```
 cd 001-hubcluster-setup
