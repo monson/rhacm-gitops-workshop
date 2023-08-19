@@ -16,7 +16,6 @@
     - [Important Notes](#important-notes-1)
     - [Downloading the ISO Image for `hubztp`](#downloading-the-iso-image-for-hubztp)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
-      - [Preparation](#preparation)
       - [Script Execution](#script-execution)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
@@ -78,7 +77,7 @@ Executing this script will automate the creation of the `br0` bridge using the e
 In this section, we'll focus on setting up a hub cluster consisting of three nodes. This cluster setup will leverage virtual machines (VMs) to simulate bare metal nodes. For ease of setup, we have a scripted approach.
 
 ### Generating ISO Image using Assisted Installer
-Post VM setup, the next step is to generate the necessary ISO image to provision the hub cluster nodes:
+The first step is to generate the necessary ISO image to provision the hub cluster nodes:
 - Visit [Red Hat OpenShift Cluster Manager](https://console.redhat.com/).
 - Navigate to the [Assisted Installer](https://console.redhat.com/openshift/create/datacenter) service.
 - Follow the instructions to generate an ISO image tailored for your hub cluster setup. This image will be used to boot and provision the nodes.
@@ -100,7 +99,6 @@ Once the ISO generation is complete, you'll find a download option for the ISO i
 ![Hub Cluster Download ISO](docs/images/hub-cluster-download-iso.png)
 
 ### Setting Up Hub Cluster VMs
-#### Preparation
 The script uses QEMU to create images and `virt-install` to set up the VMs. It sets up three nodes, each with 50GB of RAM and 16 vCPUs, using the `qcow2` format for the virtual hard drives.
 
 - Each VM image is created with a size of 200GB.
