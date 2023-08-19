@@ -19,6 +19,8 @@
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
     - [Completing Cluster Installation via Red Hat Console](#completing-cluster-installation-via-red-hat-console)
   - [003 - Setting Up Sushy Tool](#003---setting-up-sushy-tool)
+    - [Install and configure Sushy](#install-and-configure-sushy)
+    - [Validate](#validate)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -148,4 +150,45 @@ This script initializes the VMs and starts them.
 After initializing and starting the VMs as part of the hub cluster setup, the next step involves finalizing the cluster installation process through the Red Hat Console. Once the cluster is up and running you can download the kubeconfig file from Red Hat Console page.
 
 ## 003 - Setting Up Sushy Tool
+
+### Install and configure Sushy
 The Sushy tool serves as an emulator for Redfish, which is a standard protocol for managing servers. This guide will walk you through the steps to set up the Sushy tool by following the steps outlined in the [cloudcult.dev](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/) blog post. All scripts is placed in the 002-sushy-tool-setup/001-sushy-setup.sh file.
+
+```
+cd 002-sushy-tool-setup
+bash 001-sushy-setup.sh
+```
+
+> Notes: Ensure Podman and other dependencies are installed and up-to-date before starting this process.
+
+### Validate
+To validate that the Sushy tool is up and running and to check if VMs are exposed using this tool, you can follow these steps:
+- Check if the sushy-emulator service is running:
+```
+sudo systemctl status sushy-emulator.service
+```
+You should see an `active (running)` status if it's operational.
+
+- Curl the Redfish endpoints:
+The Sushy emulator imitates a Redfish interface. You can use curl to query the base Redfish endpoint to see if it responds:
+```
+curl http://localhost:8000/redfish/v1/
+```
+This should return a JSON response with various Redfish details if the emulator is running and functioning correctly.
+
+- Check for VMs
+Redfish organizes servers into Systems. You can list the systems (VMs in this context) that the emulator is exposing:
+```
+curl http://localhost:8000/redfish/v1/Systems/
+```
+This should provide you with a list of systems (VMs) that are being managed by the Sushy emulator.
+
+- Specific VM Details:
+If you want details on a specific VM, use the `Id` from the above command and query:
+```
+curl http://localhost:8000/redfish/v1/Systems/<VM_Id>
+```
+Replace `<VM_Id>` with the ID of the VM you're interested in. This should give you detailed information about that particular VM.
+
+
+
