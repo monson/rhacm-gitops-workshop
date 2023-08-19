@@ -17,7 +17,7 @@
     - [Downloading the ISO Image for `hubztp`](#downloading-the-iso-image-for-hubztp)
     - [Attaching Additional Storage to Hub Cluster VMs for ODF](#attaching-additional-storage-to-hub-cluster-vms-for-odf)
     - [Setting Up Hub Cluster VMs](#setting-up-hub-cluster-vms)
-      - [Script Execution](#script-execution)
+    - [Completing Cluster Installation via Red Hat Console](#completing-cluster-installation-via-red-hat-console)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -133,7 +133,6 @@ The script uses QEMU to create images and `virt-install` to set up the VMs. It s
 - VMs are associated with the `br0` network bridge created in the previous step.
 - A unique MAC address is assigned to each VM for identification.
 
-#### Script Execution
 > Caution: The ISO location in the script is hardcoded. Ensure to download the ISO to the specified location: `/opt/ssd/boot/discovery_image_${CLUSTER_NAME}.iso` or adjust the script accordingly.
 
 Navigate to the `001-hubcluster-setup` directory and run:
@@ -143,4 +142,7 @@ bash 002-create-hubvms-mno.sh
 ```
 
 This script initializes the VMs and starts them.
+
+### Completing Cluster Installation via Red Hat Console
+After initializing and starting the VMs as part of the hub cluster setup, the next step involves finalizing the cluster installation process through the Red Hat Console. Once the cluster is up and running you can download the kubeconfig file from Red Hat Console page.
 
