@@ -345,11 +345,37 @@ oc apply -f 005-openshift-gitops/01-openshift-gitops-subscription.yaml
 ```
 
 ### Verifying the Installation
+- **Check Pod Status:** Before proceeding, it's crucial to ensure all related pods are up and running in the openshift-gitops namespace.
+```
+oc get pods -n openshift-gitops
+```
+Expected Output:
+```
+NAME                                                         READY   STATUS    RESTARTS   AGE
+cluster-6b8c7b49f-vx2vr                                      1/1     Running   0          80m
+kam-59fd558fcb-s6ncn                                         1/1     Running   0          80m
+openshift-gitops-application-controller-0                    1/1     Running   0          80m
+openshift-gitops-applicationset-controller-7d5bf7f69-vncj4   1/1     Running   0          80m
+openshift-gitops-dex-server-f69dd7684-bnh95                  1/1     Running   0          80m
+openshift-gitops-redis-bb656787d-jk7j5                       1/1     Running   0          80m
+openshift-gitops-repo-server-6bf856897c-zm2rw                1/1     Running   0          80m
+openshift-gitops-server-7ffc6ff594-hqfh7                     1/1     Running   0          80m
+```
+- **Access Argo CD Console:** To confirm that Argo CD has been properly set up, fetch the route to its console and access it in your web browser.
+```
+oc get route openshift-gitops-server -n openshift-gitops --template='https://{{.spec.host}}'
+```
+
+Output:
+```
+https://openshift-gitops-server-openshift-gitops.apps.sno01.telco.ocp.run
+```
+
+Access the ArgoCD UI. Once logged in, you should be greeted with the ArgoCD dashboard displaying various applications, clusters, and repositories (empty by default).
+
+![Image showcasing the ArgoCD dashboard UI after successful login](docs/images/argocd-loggedin-ui.png)
+
 - **OpenShift Console Verification:** Open your OpenShift Console and navigate to the installed operators list. You should be able to see the "OpenShift GitOps Operator" listed as one of the installed operators. Additionally, check for the ArgoCD navigation menu from the top right menu bar to confirm the successful installation.
 
 ![Argocd Operators](docs/images/argocd-operator-navigation-menu.png)
-
-- **ArgoCD UI Verification:** Access the ArgoCD UI. Once logged in, you should be greeted with the ArgoCD dashboard displaying various applications, clusters, and repositories (empty by default).
-
-![Image showcasing the ArgoCD dashboard UI after successful login](docs/images/argocd-loggedin-ui.png)
 
