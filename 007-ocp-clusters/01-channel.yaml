@@ -9,7 +9,7 @@ metadata:
 spec:
   type: Git
   # IMPORTANT: Place your GitHub repository URL here (HTTPS):
-  pathname: 'https://github.com/pandeybk/rhacm-gitops-demo.git'
+  pathname: 'https://github.com/pandeybk/rhacm-gitops-workshop.git'
   insecureSkipVerify: false
   # secretRef:
   #   name: ztp-repository-auth

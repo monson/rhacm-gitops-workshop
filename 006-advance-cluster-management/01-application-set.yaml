@@ -20,7 +20,7 @@ spec:
           prune: true
           selfHeal: true
       source:
-        repoURL: https://github.com/pandeybk/rhacm-gitops-demo.git
+        repoURL: https://github.com/pandeybk/rhacm-gitops-workshop.git
         targetRevision: main
         path: resources/rhacm-operator
       destination:
