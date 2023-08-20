@@ -34,6 +34,12 @@
   - [006 - OpenShift GitOps Operator Setup](#006---openshift-gitops-operator-setup)
     - [Installation](#installation)
     - [Verifying the Installation](#verifying-the-installation-1)
+  - [007 - Installing Red Hat Advanced Cluster Management (RHACM) with ArgoCD](#007---installing-red-hat-advanced-cluster-management-rhacm-with-argocd)
+    - [Prerequisites](#prerequisites)
+    - [Understanding AppProject and ApplicationSet in ArgoCD](#understanding-appproject-and-applicationset-in-argocd)
+    - [Deploying the AppProject and ApplicationSet](#deploying-the-appproject-and-applicationset)
+    - [Monitoring the Deployment in ArgoCD](#monitoring-the-deployment-in-argocd)
+    - [Verifying the Installation](#verifying-the-installation-2)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -337,11 +343,26 @@ oc get pvc | grep cephfs-pvc
 ### Installation
 - **Namespace Creation:** The OpenShift GitOps Operator will reside in the openshift-gitops namespace. This namespace is also set up to allow for cluster monitoring.
 ```
-oc apply -f 005-openshift-gitops/00-openshift-gitops-namespace.yaml
+oc apply -f 005-openshift-gitops/00-namespace.yaml
 ```
 - **Subscription:** Subscribing to the OpenShift GitOps Operator allows your cluster to receive updates and function in conjunction with GitOps practices. Make sure you've chosen the right version (gitops-1.9 in this case).
 ```
-oc apply -f 005-openshift-gitops/01-openshift-gitops-subscription.yaml
+oc apply -f 005-openshift-gitops/01-subscription.yaml
+```
+
+- **RBAC Configuration:** The OpenShift GitOps Operator's application controller requires certain permissions to manage resources related to the MultiClusterHub. To facilitate this, you should set up a ClusterRole and ClusterRoleBinding.
+
+    - **ClusterRole:** Defines the permissions required by the ArgoCD application controller to manage MultiClusterHub resources.
+    - **ClusterRoleBinding:** Binds the above ClusterRole to the ArgoCD application controller's service account.
+
+Apply the RBAC configurations:
+```
+oc apply -f 005-openshift-gitops/02-rbac-multiclusterhub.yaml
+```
+
+- **Deploy Everything Using Kustomization:** Instead of applying each resource individually, you can utilize kustomize to deploy all manifests at once. This is beneficial for managing and organizing resources.
+```
+oc apply -k 005-openshift-gitops/
 ```
 
 ### Verifying the Installation
@@ -379,3 +400,50 @@ Access the ArgoCD UI. Once logged in, you should be greeted with the ArgoCD dash
 
 ![Argocd Operators](docs/images/argocd-operator-navigation-menu.png)
 
+## 007 - Installing Red Hat Advanced Cluster Management (RHACM) with ArgoCD
+### Prerequisites
+Ensure that ArgoCD and OpenShift GitOps operator are installed and correctly configured. If not, refer to the previous section on setting them up.
+
+### Understanding AppProject and ApplicationSet in ArgoCD
+Before we begin, it's essential to understand the components:
+
+- **AppProject:** In ArgoCD, an AppProject is a custom resource that provides a logical grouping of applications. It defines a set of rules which can restrict source repositories, destination clusters & namespaces, and can be used to control what cluster-wide resources can be defined within the project.
+
+- **ApplicationSet:** An ApplicationSet is a custom resource introduced to ArgoCD that provides automation in generating ArgoCD Applications. It lets you deploy applications across multiple clusters and namespaces, source multiple repositories, and more.
+
+If you look at the content of ApplicationSet which refer to the repository https://github.com/pandeybk/rhacm-gitops-demo.git and will deploy the RHACM operator based on the manifests available in the apps/rhacm-operator directory.
+
+### Deploying the AppProject and ApplicationSet
+- Use Kustomize to Apply AppProject and ApplicationSet:
+```
+oc apply -k 006-advance-cluster-management/
+```
+
+This command will create both the `AppProject` and `ApplicationSet` in the `openshift-gitops` namespace.
+
+### Monitoring the Deployment in ArgoCD
+Once the AppProject and ApplicationSet are deployed:
+
+Navigate to the ArgoCD dashboard. Under the "Applications" tab, you will observe the deployment progress of the "advance-cluster-management" application.
+
+![Image displaying the progress of the RHACM installation on the ArgoCD dashboard](docs/images/001-rhacm-deployment.png)
+
+Click on the "advance-cluster-management" application for a detailed view. This will give you an idea of the resources being deployed, their health, and sync status. As ArgoCD pulls the manifests from the GitHub repository and begins the deployment, you can watch the progress in real-time. The resources, including the RHACM namespace, operator group, subscription, and multicluster hub, will get deployed in sequence.
+
+![Image showing the deployment sequence and progress from the ArgoCD UI](docs/images/002-rhacm-deployement-progress-full-screen.png)
+
+###  Verifying the Installation
+Upon successful deployment:
+- **Check the RHACM Resources in OpenShift:** Verify that the RHACM resources are correctly deployed in the open-cluster-management namespace.
+```
+oc get all -n open-cluster-management
+```
+You should see the RHACM resources, including the multicluster hub, running smoothly.
+
+- **Inspect the OpenShift Console:** Navigate to the OpenShift console. In the installed operators list, you should see the RHACM operator listed as "Installed" and "Succeeded".
+
+Moreover, a new menu item to access the multicluster hub should be visible, indicating that RHACM is fully integrated with your OpenShift cluster.
+![Image showing RHACM Operator and navigation link](./docs/images/003-rhacm-operator-list-and-menu.png)
+
+- **Access the RHACM Dashboard:** Click on the "All Clusters" menu item from the drop list. This action should redirect you to the RHACM dashboard. The dashboard provides a comprehensive view of all your managed clusters, their health, and other associated details (empty  by dafault).
+![Image showing RHACM Dashboard](./docs/images/004-rhacm-dashboard.png)
