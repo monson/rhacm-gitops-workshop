@@ -1,4 +1,9 @@
 resources:
+- 00-namespace.yaml
+- 01-channel.yaml
+# - 02-git-secrets.yaml
+- 03-placementrule.yaml
+- 04-clusterrolebinding.yaml
 - sno01.telco.ocp.run.yaml
 - sno02.telco.ocp.run.yaml
 - sno03.telco.ocp.run.yaml
