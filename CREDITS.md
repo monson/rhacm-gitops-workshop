@@ -1,1 +1,2 @@
 - Sushy Tool Reference [Brandon B. Jozsa](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/)
+- [Local Storage and ODF Installation](https://access.redhat.com/articles/5692201)

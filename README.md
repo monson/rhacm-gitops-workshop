@@ -1,6 +1,6 @@
 - [GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer](#gitops-demonstration-with-red-hat-advanced-cluster-management-rhacm-and-assisted-installer)
   - [Objective](#objective)
-  - [001 - Overview](#001---overview)
+  - [000 - Overview](#000---overview)
     - [Red Hat Advanced Cluster Management (RHACM):](#red-hat-advanced-cluster-management-rhacm)
     - [Assisted Installer:](#assisted-installer)
     - [KVM \& Sushy-Tools:](#kvm--sushy-tools)
@@ -26,6 +26,11 @@
     - [Node Preparation](#node-preparation)
     - [Auto Device Discovery \& Persistent Volumes Creation](#auto-device-discovery--persistent-volumes-creation)
     - [LocalVolumeSet Creation](#localvolumeset-creation)
+  - [005 - OpenShift Data Foundation (ODF) Setup](#005---openshift-data-foundation-odf-setup)
+    - [Installing the ODF Operator](#installing-the-odf-operator)
+    - [Creating the Storage Cluster](#creating-the-storage-cluster)
+    - [Verifying the Installation](#verifying-the-installation)
+    - [Testing with PVCs](#testing-with-pvcs)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -34,7 +39,7 @@
 The primary goal of this project is to showcase the GitOps functionality using a combination of Red Hat tools, emulated bare metal infrastructure, and Tekton pipelines.
 ![Lab Overview](docs/images/lab-overview.png?raw=true "Lab Overview")
 
-## 001 - Overview
+## 000 - Overview
 This demonstration integrates several tools and technologies to showcase the power and flexibility of GitOps in a modern infrastructure:
 
 ### Red Hat Advanced Cluster Management (RHACM):
@@ -250,11 +255,77 @@ oc get pods -n openshift-local-storage | grep "diskmaker-manager"
 oc get pv -n openshift-local-storage
 ```
 
+## 005 - OpenShift Data Foundation (ODF) Setup
+### Installing the ODF Operator
+- **Namespace Creation:** Create the openshift-storage namespace which also sets up the namespace for cluster monitoring.
+```
+oc apply -f 004-odf-setup/001-namespace.yaml
+```
 
+- **Operator Group Setup:** Establish the openshift-storage-operatorgroup for the ODF Operator within the openshift-storage namespace.
+```
+oc apply -f 004-odf-setup/002-operator-group.yaml
+```
 
+- **Subscription to the OCS Operator:** Depending on your version of OCS, subscribe to the appropriate operator. For OCS version 4.9 and above:
+```
+oc apply -f 004-odf-setup/003-subscription.yaml
+```
+> Note: Ensure the channel aligns with your desired OCS version and is compatible with your OCP version.
 
+### Creating the Storage Cluster
+- **Storage Cluster CR Creation:** Use the provided configuration for setting up the storage cluster. You might need to adjust parameters such as count for the number of OSDs and storage size based on your infrastructure.
+```
+oc apply -f 004-odf-setup/004-storage-cluster.yaml
+```
 
+### Verifying the Installation
+- **Check ODF Pods:** Ensure all pods within the openshift-storage namespace are either in a Running or Completed state.
+```
+oc get pods -n openshift-storage
+```
 
+- **Check CSV Phase:** Confirm that the `odf-operator` are in the "Succeeded" phase.
+```
+oc get csv -n openshift-storage
+```
 
+### Testing with PVCs
+- CephRBD PVC Creation:
+```
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rbd-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-ceph-rbd
+EOF
+```
 
-
+- CephFS PVC Creation:
+```
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cephfs-pvc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-cephfs
+EOF
+```
+- Validation of PVC Creation:
+```
+oc get pvc | grep rbd-pvc
+oc get pvc | grep cephfs-pvc
+```

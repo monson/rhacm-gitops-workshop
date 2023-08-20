@@ -1,0 +1,48 @@
+apiVersion: ocs.openshift.io/v1
+kind: StorageCluster
+metadata:
+ name: ocs-storagecluster
+ namespace: openshift-storage
+spec:
+  arbiter: {}
+  encryption:
+    kms: {}
+  externalStorage: {}
+  flexibleScaling: true
+  managedResources:
+    cephBlockPools: {}
+    cephCluster: {}
+    cephConfig: {}
+    cephDashboard: {}
+    cephFilesystems: {}
+    cephNonResilientPools: {}
+    cephObjectStoreUsers: {}
+    cephObjectStores: {}
+    cephRBDMirror: {}
+    cephToolbox: {}
+  mirroring: {}
+  monDataDirHostPath: /var/lib/rook
+  network:
+    connections:
+      encryption: {}
+    multiClusterService: {}
+  nodeTopologies: {}
+  storageDeviceSets:
+  - config: {}
+    count: 3
+    dataPVCTemplate:
+      metadata: {}
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: "1"
+        storageClassName: local-vs
+        volumeMode: Block
+      status: {}
+    name: ocs-deviceset-local-vs
+    placement: {}
+    preparePlacement: {}
+    replica: 1
+    resources: {}
