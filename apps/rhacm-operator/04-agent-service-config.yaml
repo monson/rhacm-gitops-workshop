@@ -1,0 +1,24 @@
+kind: AgentServiceConfig
+metadata:
+  name: agent
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  databaseStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+  filesystemStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 30Gi
+  imageStorage:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi

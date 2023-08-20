@@ -7,3 +7,4 @@ resources:
 - 01-operator-group.yaml
 - 02-subscription.yaml
 - 03-multiclusterhub.yaml
+- 04-agent-service-config.yaml
