@@ -31,6 +31,9 @@
     - [Creating the Storage Cluster](#creating-the-storage-cluster)
     - [Verifying the Installation](#verifying-the-installation)
     - [Testing with PVCs](#testing-with-pvcs)
+  - [006 - OpenShift GitOps Operator Setup](#006---openshift-gitops-operator-setup)
+    - [Installation](#installation)
+    - [Verifying the Installation](#verifying-the-installation-1)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -329,3 +332,24 @@ EOF
 oc get pvc | grep rbd-pvc
 oc get pvc | grep cephfs-pvc
 ```
+
+## 006 - OpenShift GitOps Operator Setup
+### Installation
+- **Namespace Creation:** The OpenShift GitOps Operator will reside in the openshift-gitops namespace. This namespace is also set up to allow for cluster monitoring.
+```
+oc apply -f 005-openshift-gitops/00-openshift-gitops-namespace.yaml
+```
+- **Subscription:** Subscribing to the OpenShift GitOps Operator allows your cluster to receive updates and function in conjunction with GitOps practices. Make sure you've chosen the right version (gitops-1.9 in this case).
+```
+oc apply -f 005-openshift-gitops/01-openshift-gitops-subscription.yaml
+```
+
+### Verifying the Installation
+- **OpenShift Console Verification:** Open your OpenShift Console and navigate to the installed operators list. You should be able to see the "OpenShift GitOps Operator" listed as one of the installed operators. Additionally, check for the ArgoCD navigation menu from the top right menu bar to confirm the successful installation.
+
+![Argocd Operators](docs/images/argocd-operator-navigation-menu.png)
+
+- **ArgoCD UI Verification:** Access the ArgoCD UI. Once logged in, you should be greeted with the ArgoCD dashboard displaying various applications, clusters, and repositories (empty by default).
+
+![Image showcasing the ArgoCD dashboard UI after successful login](docs/images/argocd-loggedin-ui.png)
+
