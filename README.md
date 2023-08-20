@@ -411,7 +411,7 @@ Before we begin, it's essential to understand the components:
 
 - **ApplicationSet:** An ApplicationSet is a custom resource introduced to ArgoCD that provides automation in generating ArgoCD Applications. It lets you deploy applications across multiple clusters and namespaces, source multiple repositories, and more.
 
-If you look at the content of ApplicationSet which refer to the repository https://github.com/pandeybk/rhacm-gitops-demo.git and will deploy the RHACM operator based on the manifests available in the apps/rhacm-operator directory.
+If you look at the content of ApplicationSet which refer to the repository https://github.com/pandeybk/rhacm-gitops-demo.git and will deploy the RHACM operator based on the manifests available in the resources/rhacm-operator directory.
 
 ### Deploying the AppProject and ApplicationSet
 - Use Kustomize to Apply AppProject and ApplicationSet:

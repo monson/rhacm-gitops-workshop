@@ -1,0 +1,23 @@
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: mno01
+  namespace: mno01
+spec:
+  baseDomain: telco.ocp.run
+  clusterName: mno01
+  controlPlaneConfig:
+    servingCertificates: {}
+  installed: false
+  clusterInstallRef:
+    group: extensions.hive.openshift.io
+    kind: AgentClusterInstall
+    name: mno01
+    version: v1beta1
+  platform:
+    agentBareMetal:
+      agentSelector:
+        matchLabels:
+          cluster-name: "mno01"
+  pullSecretRef:
+    name: pullsecret-cluster-mno01

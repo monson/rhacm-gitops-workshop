@@ -1,0 +1,4 @@
+resources:
+- sno01.telco.ocp.run
+- sno02.telco.ocp.run
+- sno03.telco.ocp.run

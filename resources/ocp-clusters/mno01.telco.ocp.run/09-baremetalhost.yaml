@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: bmc-secret-node01
+  namespace: mno01
+stringData:
+  username: admin
+  password: admin
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: mno01-node01
+  namespace: mno01
+  labels:
+    infraenvs.agent-install.openshift.io: "mno01"
+  annotations:
+    inspect.metal3.io: disabled
+    bmac.agent-install.openshift.io/hostname: "mno01-node01"
+spec:
+  online: true
+  bootMACAddress: 00:00:00:00:00:21
+  automatedCleaningMode: metadata
+  rootDeviceHints:
+    deviceName: "/dev/vda"
+  bmc:
+    # for test lab using libvirt with sushy-tools
+    # https://docs.openstack.org/sushy-tools/latest/
+    address: redfish-virtualmedia+http://192.168.7.213:8000/redfish/v1/Systems/deed1e55-fe11-f0e5-0dd5-babb1ed1a021
+    credentialsName: bmc-secret-node01
+    disableCertificateVerification: true
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: bmc-secret-node02
+  namespace: mno01
+stringData:
+  username: admin
+  password: admin
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: mno01-node02
+  namespace: mno01
+  labels:
+    infraenvs.agent-install.openshift.io: "mno01"
+  annotations:
+    inspect.metal3.io: disabled
+    bmac.agent-install.openshift.io/hostname: "mno01-node02"
+spec:
+  online: true
+  bootMACAddress: 00:00:00:00:00:22
+  automatedCleaningMode: metadata
+  rootDeviceHints:
+    deviceName: "/dev/vda"
+  bmc:
+    # for test lab using libvirt with sushy-tools
+    # https://docs.openstack.org/sushy-tools/latest/
+    address: redfish-virtualmedia+http://192.168.7.213:8000/redfish/v1/Systems/deed1e55-fe11-f0e5-0dd5-babb1ed1a022
+    credentialsName: bmc-secret-node02
+    disableCertificateVerification: true
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: bmc-secret-node03
+  namespace: mno01
+stringData:
+  username: admin
+  password: admin
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: mno01-node03
+  namespace: mno01
+  labels:
+    infraenvs.agent-install.openshift.io: "mno01"
+  annotations:
+    inspect.metal3.io: disabled
+    bmac.agent-install.openshift.io/hostname: "mno01-node03"
+spec:
+  online: true
+  bootMACAddress: 00:00:00:00:00:23
+  automatedCleaningMode: metadata
+  rootDeviceHints:
+    deviceName: "/dev/vda"
+  bmc:
+    # for test lab using libvirt with sushy-tools
+    # https://docs.openstack.org/sushy-tools/latest/
+    address: redfish-virtualmedia+http://192.168.7.213:8000/redfish/v1/Systems/deed1e55-fe11-f0e5-0dd5-babb1ed1a023
+    credentialsName: bmc-secret-node03
+    disableCertificateVerification: true

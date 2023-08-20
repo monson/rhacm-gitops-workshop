@@ -1,0 +1,111 @@
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: mno01-node01
+  namespace: mno01
+  labels:
+    cluster-name: mno01
+spec:
+  config:
+    interfaces:
+      - name: enp1s0
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: true
+          address:
+            - ip: 192.168.7.21
+              prefix-length: 24
+          dhcp: false
+        ipv6:
+          enabled: false
+    dns-resolver:
+      config:
+        search:
+          - telco.ocp.run
+        server:
+          - 192.168.7.213
+    routes:
+      config:
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.4.1
+          next-hop-interface: enp1s0
+          table-id: 254
+  interfaces:
+    - name: "enp1s0"
+      macAddress: "00:00:00:00:00:21"
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: mno01-node02
+  namespace: mno01
+  labels:
+    cluster-name: mno01
+spec:
+  config:
+    interfaces:
+      - name: enp1s0
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: true
+          address:
+            - ip: 192.168.7.22
+              prefix-length: 24
+          dhcp: false
+        ipv6:
+          enabled: false
+    dns-resolver:
+      config:
+        search:
+          - telco.ocp.run
+        server:
+          - 192.168.7.213
+    routes:
+      config:
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.4.1
+          next-hop-interface: enp1s0
+          table-id: 254
+  interfaces:
+    - name: "enp1s0"
+      macAddress: "00:00:00:00:00:22"
+---
+apiVersion: agent-install.openshift.io/v1beta1
+kind: NMStateConfig
+metadata:
+  name: mno01-node03
+  namespace: mno01
+  labels:
+    cluster-name: mno01
+spec:
+  config:
+    interfaces:
+      - name: enp1s0
+        type: ethernet
+        state: up
+        ipv4:
+          enabled: true
+          address:
+            - ip: 192.168.7.23
+              prefix-length: 24
+          dhcp: false
+        ipv6:
+          enabled: false
+    dns-resolver:
+      config:
+        search:
+          - telco.ocp.run
+        server:
+          - 192.168.7.213
+    routes:
+      config:
+        - destination: 0.0.0.0/0
+          next-hop-address: 192.168.4.1
+          next-hop-interface: enp1s0
+          table-id: 254
+  interfaces:
+    - name: "enp1s0"
+      macAddress: "00:00:00:00:00:23"

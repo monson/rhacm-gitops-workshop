@@ -1,0 +1,26 @@
+---
+apiVersion: cluster.open-cluster-management.io/v1
+kind: ManagedCluster
+metadata:
+  name: sno01
+  namespace: sno01
+  labels:
+    name: sno01
+    cloud: hybrid
+    cluster-name: 'sno01'
+    pao: "true"
+    sriov: "false"
+
+    # Labels for OpenShift Gitops
+    cluster.open-cluster-management.io/clusterset: "all-openshift-clusters"
+    vendor: "OpenShift"
+
+    # Labels to deploy workload
+    app: "webapp"
+
+    # Deploy 5gcores
+    sites: "edgesite"
+
+spec:
+  hubAcceptsClient: true
+  leaseDurationSeconds: 60

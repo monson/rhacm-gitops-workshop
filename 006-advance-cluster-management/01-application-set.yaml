@@ -22,7 +22,7 @@ spec:
       source:
         repoURL: https://github.com/pandeybk/rhacm-gitops-demo.git
         targetRevision: main
-        path: apps/rhacm-operator
+        path: resources/rhacm-operator
       destination:
         server: 'https://kubernetes.default.svc'
 
