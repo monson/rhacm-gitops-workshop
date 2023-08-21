@@ -1,0 +1,5 @@
+resources:
+  - "details-service.yaml"
+  - "ratings-service.yaml"
+  - "reviews-service.yaml"
+  - "productpage-service.yaml"

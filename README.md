@@ -54,6 +54,15 @@
     - [Understanding individual cluster folders](#understanding-individual-cluster-folders)
   - [011 - Integrating RHACM with ArgoCD](#011---integrating-rhacm-with-argocd)
     - [Applying the Manifests Using ArgoCD ApplicationSet](#applying-the-manifests-using-argocd-applicationset)
+  - [012 - Deploying Workloads with ArgoCD ApplicationSet](#012---deploying-workloads-with-argocd-applicationset)
+    - [Bookinfo Workload:](#bookinfo-workload)
+      - [ApplicationSet (bookinfo-dev.yaml):](#applicationset-bookinfo-devyaml)
+      - [Placement (bookinfo-placement):](#placement-bookinfo-placement)
+    - [Podinfo Workload:](#podinfo-workload)
+      - [ApplicationSet (podinfo-dev.yaml):](#applicationset-podinfo-devyaml)
+      - [Placement (podinfo-placement):](#placement-podinfo-placement)
+    - [Apply the ApplicationSet and Placement Manifests:](#apply-the-applicationset-and-placement-manifests)
+    - [Monitor Application Creation and Deployment:](#monitor-application-creation-and-deployment)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -730,3 +739,46 @@ oc apply -f 009-argocd-acm-integration/01-applicationset.yaml
 
 Once the `ApplicationSet` resource is applied, ArgoCD will dynamically generate `Application` resources based on the defined template and generator within the `ApplicationSet` definition.
 
+## 012 - Deploying Workloads with ArgoCD ApplicationSet
+In this section, we will be deploying two workloads - `bookinfo` and `podinfo`. The former uses Kustomization, and the latter uses Helm charts for deployment. Both of these workloads will be managed and deployed using the ArgoCD `ApplicationSet` resource. This allows for dynamic application creation based on target clusters and reduces manual Application creation overhead.
+
+Given the directory structure:
+```
+010-workloads
+├── bookinfo-dev.yaml
+├── kustomization.yaml
+├── podinfo-dev.yaml
+```
+
+Let's dive deeper into each of the components.
+
+### Bookinfo Workload:
+
+#### ApplicationSet (bookinfo-dev.yaml):
+- This ApplicationSet resource targets clusters with the label `app=webapp` using the ACM Placement rule named `bookinfo-placement`.
+- It defines an application template that points to a Git repository containing the `bookinfo` workload manifest structured for Kustomization.
+- The applications generated from this set will create or identify the namespace `bookinfo-dev` on the target clusters and deploy the workload within it.
+
+#### Placement (bookinfo-placement):
+- Defines a selection criteria to target clusters having a label `app=webapp`.
+
+### Podinfo Workload:
+
+#### ApplicationSet (podinfo-dev.yaml):
+- This ApplicationSet also targets clusters with the label `app=webapp`, but uses the ACM Placement rule named `podinfo-placement`.
+- The application template for podinfo points to its respective Helm chart in the provided Git repository.
+- The applications generated will create or identify the namespace podinfo-dev on the target clusters and deploy the workload within it.
+
+#### Placement (podinfo-placement):
+Similar to the bookinfo placement, it targets clusters with the label `app=webapp`.
+
+### Apply the ApplicationSet and Placement Manifests:
+Deploy the manifests for both bookinfo and podinfo workloads.
+```
+kubectl apply -k 010-workloads/
+```
+
+### Monitor Application Creation and Deployment:
+Once the ApplicationSet resources are applied, ArgoCD will dynamically create applications based on the clusters matching the ACM placement rules.
+
+You can monitor the applications via the ArgoCD UI.

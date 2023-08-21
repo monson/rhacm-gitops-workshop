@@ -1,0 +1,3 @@
+resources:
+- bookinfo-dev.yaml
+- podinfo-dev.yaml
