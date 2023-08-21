@@ -1,0 +1,21 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: vault-console
+  namespace: vault
+  labels:
+    app.kubernetes.io/instance: vault-server
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vault-ui
+    app.kubernetes.io/part-of: vault-server
+    helm.sh/chart: vault-0.19.0
+  annotations:
+    openshift.io/host.generated: 'true'
+spec:
+  to:
+    kind: Service
+    name: vault-server-ui
+    weight: 100
+  port:
+    targetPort: http
+  wildcardPolicy: None

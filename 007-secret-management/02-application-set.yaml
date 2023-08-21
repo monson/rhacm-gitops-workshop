@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: secret-management-appset
+  namespace: openshift-gitops
+spec:
+  generators:
+  - list:
+      elements:
+      - name: external-secrets
+        path: resources/secret-management/external-secrets
+        destNamespace: external-secrets
+      - name: vault-server
+        path: resources/secret-management/vault-server
+        destNamespace: vault
+  template:
+    metadata:
+      name: secret-management-{{name}}
+    spec:
+      project: secret-management
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: https://github.com/pandeybk/rhacm-gitops-workshop.git # Update this with your repository URL
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: "{{destNamespace}}"

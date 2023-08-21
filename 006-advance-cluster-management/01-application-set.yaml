@@ -25,4 +25,3 @@ spec:
         path: resources/rhacm-operator
       destination:
         server: 'https://kubernetes.default.svc'
-

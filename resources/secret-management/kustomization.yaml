@@ -1,0 +1,4 @@
+resources:
+  - external-secrets
+  - vault-server
+  - external-secrets-config

@@ -40,6 +40,9 @@
     - [Deploying the AppProject and ApplicationSet](#deploying-the-appproject-and-applicationset)
     - [Monitoring the Deployment in ArgoCD](#monitoring-the-deployment-in-argocd)
     - [Verifying the Installation](#verifying-the-installation-2)
+  - [008 - Secret Management with Vault and External Secrets Operator](#008---secret-management-with-vault-and-external-secrets-operator)
+    - [Deploying Vault and External Secrets Operator](#deploying-vault-and-external-secrets-operator)
+    - [Initializing and Unsealing Vault](#initializing-and-unsealing-vault)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -52,11 +55,11 @@ The primary goal of this project is to showcase the GitOps functionality using a
 This demonstration integrates several tools and technologies to showcase the power and flexibility of GitOps in a modern infrastructure:
 
 ### Red Hat Advanced Cluster Management (RHACM):
-- RHACM is a comprehensive cluster management solution from Red Hat, designed to simplify the life-cycle of Kubernetes clusters, from creation to management and application deployment.
-- Role in this project: RHACM will oversee and manage the Kubernetes clusters, ensuring they're compliant with defined policies, and helping in scaling, upgrading, or recovering clusters as necessary.
+- RHACM is a comprehensive cluster management solution from Red Hat, designed to simplify the life-cycle of OpenShift clusters, from creation to management and application deployment.
+- Role in this project: RHACM will oversee and manage the OpenShift clusters, ensuring they're compliant with defined policies, and helping in scaling, upgrading, or recovering clusters as necessary.
 
 ### Assisted Installer:
-- An innovative deployment tool crafted for OpenShift Container Platform (OCP) clusters. It streamlines the process of setting up a Kubernetes cluster, especially on challenging environments like bare metal.
+- An innovative deployment tool crafted for OpenShift Container Platform (OCP) clusters. It streamlines the process of setting up a OpenShift cluster, especially on challenging environments like bare metal.
 - Role in this project: We'll use Assisted Installer to deploy OCP onto our emulated bare metal environment. It'll interact with the emulated Redfish API, believing it's deploying to genuine bare metal servers.
 
 ### KVM & Sushy-Tools:
@@ -447,3 +450,113 @@ Moreover, a new menu item to access the multicluster hub should be visible, indi
 
 - **Access the RHACM Dashboard:** Click on the "All Clusters" menu item from the drop list. This action should redirect you to the RHACM dashboard. The dashboard provides a comprehensive view of all your managed clusters, their health, and other associated details (empty  by dafault).
 ![Image showing RHACM Dashboard](./docs/images/004-rhacm-dashboard.png)
+
+## 008 - Secret Management with Vault and External Secrets Operator
+Efficiently and securely managing secrets is crucial. Secrets, such as database credentials, API tokens, and encryption keys, are sensitive pieces of information that applications require to function correctly. Exposing such secrets can lead to serious security breaches. In this project we are using following two tools,
+
+- [HashiCorp Vault](https://www.vaultproject.io/) is a powerful tool for secrets management, encryption as a service, and privileged access management. It allows you to centralize and control access to secrets, while providing a detailed audit log to keep track of who is accessing them and why.
+
+- [External Secrets Operator](https://github.com/external-secrets/external-secrets) for Kubernetes is another essential tool in our arsenal. It helps to securely add secrets in Kubernetes from external sources like AWS Secrets Manager, HashiCorp Vault, and more. It ensures that secrets used in your Kubernetes environment are not stored inside git repositories and remain securely in the tool of choice.
+
+Together, these tools provide a robust mechanism to handle secrets in your OpenShift cluster. Let's walk through their deployment and configuration.
+
+### Deploying Vault and External Secrets Operator
+Start by creating an AppProject, a logical grouping of Applications that serves as a boundary for network and security policies. Then, use the ArgoCD ApplicationSet, a new CRD in ArgoCD that automates deployments in multi-cluster environments. The ApplicationSet works by defining a set of parameters, templates, and generators, subsequently creating an ArgoCD Application for each parameter set.
+
+```
+oc apply -k 007-secret-management/
+```
+
+Monitor the deployment of Vault and the External Secrets Operator using ArgoCD or the OpenShift console.
+
+### Initializing and Unsealing Vault
+The process to initialize Vault will generate a root token and five unseal keys. To fully unseal Vault, at least three of these unseal keys will be needed. Let's walk through the initialization and unsealing process:
+
+- **Initialize Vault:** Initializing Vault will generate a root token and five unseal keys. You'll need to save these credentials securely as they will be used in the following steps.
+```
+oc exec -ti vault-server-0 -- vault operator init
+```
+
+The output will provide the unseal keys and the root token. For example:
+```
+Unseal Key 1: <key_1>
+Unseal Key 2: <key_2>
+Unseal Key 3: <key_3>
+Unseal Key 4: <key_4>
+Unseal Key 5: <key_5>
+Initial Root Token: <root_token>
+```
+
+- **Unseal Vault:** Use at least three of the five generated unseal keys to unseal Vault. Each unseal command requires one key. Here we use the first three keys as an example:
+```
+oc exec -ti vault-server-0 -- vault operator unseal <key_1>
+oc exec -ti vault-server-0 -- vault operator unseal <key_2>
+oc exec -ti vault-server-0 -- vault operator unseal <key_3>
+```
+
+- **Join Other Vault Nodes to the Cluster and Unseal:** Here, other Vault instances are joined to the main instance for high availability, and then they are unsealed.
+```
+oc exec -ti vault-server-1 -- vault operator raft join http://vault-server-0.vault-server-internal:8200
+oc exec -ti vault-server-1 -- vault operator unseal
+oc exec -ti vault-server-2 -- vault operator raft join http://vault-server-0.vault-server-internal:8200
+oc exec -ti vault-server-2 -- vault operator unseal
+```
+
+- **Login to Vault Using the Root Token:** Now, login to Vault using the root token that was generated during initialization.
+```
+oc exec -ti vault-server-0 -- vault login <root_token>
+```
+
+- **Verify Vault Peers:** After setting up and unsealing Vault, you can verify the connected peers in the cluster.
+```
+oc exec -ti vault-server-0 -- vault operator raft list-peers
+```
+
+- **Setup Key-Value Secrets Store in Vault and Add a Sample Secret:** Enable the KV secrets store and add a image pull secret.
+```
+oc exec -ti vault-server-0 -- vault secrets enable -path=secret/ kv
+oc exec -ti vault-server-0 -- vault kv put secret/openshiftpullsecret dockerconfigjson='{"auths":{...}}'
+```
+- **Creating a Custom Vault Token:** Instead of using the root token, which has full and unrestricted access to Vault, it's recommended to create a custom token with limited permissions tailored to the specific needs of the application or component. This follows the principle of least privilege.
+
+1. **Create a Policy:** Before creating a token, we typically want to define a policy that outlines the exact permissions the token will have. For instance, to create a policy that allows read access to the secret we've stored:
+```
+oc exec -ti vault-server-0 -- vault policy write read-openshiftpullsecret - <<EOF
+path "secret/openshiftpullsecret" {
+    capabilities = ["read"]
+}
+EOF
+```
+
+2. **Generate a Custom Token with the Defined Policy:** With the policy in place, we can create a custom token attached to it:
+```
+oc exec -ti vault-server-0 -- vault token create -policy=read-openshiftpullsecret
+```
+This command will generate a token. You'll see an output similar to:
+
+```
+Key                  Value
+---                  -----
+token                <custom_token>
+token_accessor       <accessor_value>
+token_duration       768h
+token_renewable      true
+token_policies       ["default" "read-openshiftpullsecret"]
+identity_policies    []
+policies             ["default" "read-openshiftpullsecret"]
+```
+3. **Create Kubernetes Secret with the Custom Token:** Instead of using the root token, we'll use the custom token to create a Kubernetes secret. This token will have only the permissions we've defined in our policy.
+```
+oc create secret generic vault-token --from-literal=token="<custom_token>" -n vault 
+```
+
+Remember to replace placeholders like `<custom_token>` with the actual values from your environment.
+
+
+
+
+
+
+
+
+
