@@ -63,6 +63,11 @@
       - [Placement (podinfo-placement):](#placement-podinfo-placement)
     - [Apply the ApplicationSet and Placement Manifests:](#apply-the-applicationset-and-placement-manifests)
     - [Monitor Application Creation and Deployment:](#monitor-application-creation-and-deployment)
+  - [013 - Governance and Compliance Management using RHACM and ArgoCD](#013---governance-and-compliance-management-using-rhacm-and-argocd)
+    - [Overview](#overview)
+    - [Applying Governance Policy Using ArgoCD ApplicationSet:](#applying-governance-policy-using-argocd-applicationset)
+    - [Monitor Application Creation and Deployment:](#monitor-application-creation-and-deployment-1)
+    - [Verification](#verification)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -782,3 +787,31 @@ kubectl apply -k 010-workloads/
 Once the ApplicationSet resources are applied, ArgoCD will dynamically create applications based on the clusters matching the ACM placement rules.
 
 You can monitor the applications via the ArgoCD UI.
+
+## 013 - Governance and Compliance Management using RHACM and ArgoCD
+### Overview
+Governance and compliance management are integral components of modern cloud-native infrastructure. They aim to ensure that clusters and workloads conform to organizational and regulatory standards, thus mitigating risks and maintaining security and reliability.
+
+Red Hat Advanced Cluster Management (RHACM) introduces governance and risk management capabilities, utilizing policies to enforce configurations or validate cluster state against a predefined set of conditions.
+
+What is a Governance Policy in RHACM?
+A governance policy in RHACM is a declarative description that specifies a desired state or condition of one or more clusters. Once defined, the policy can be checked across managed clusters to determine compliance.
+
+### Applying Governance Policy Using ArgoCD ApplicationSet:
+To apply this run following command,
+```
+oc apply -k 011-rhacm-governance
+```
+
+### Monitor Application Creation and Deployment:
+Once the `ApplicationSet` resource is applied, ArgoCD will dynamically generate an application based on the list generator's elements and apply the governance policy to the managed cluster.
+
+You can monitor the application via the ArgoCD UI.
+![ArgoCD governance policy UI](docs/images/001-argocd-governance-policy.png)
+
+### Verification
+To verify that the governance policy is applied and evaluated:
+- Navigate to the MultiClusterHUB UI.
+- Head over to the Governance dashboard.
+- The newly applied policies should be listed, and their compliance state can be viewed. Any non-compliance will be flagged.
+![Governance Policy Dashboard](docs/images/002-rhacm-governance-policy-dashboard.png)
