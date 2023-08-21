@@ -52,6 +52,8 @@
   - [010 - Deploying OCP Clusters using RHACM](#010---deploying-ocp-clusters-using-rhacm)
     - [Understanding the OCP Clusters Manifests:](#understanding-the-ocp-clusters-manifests)
     - [Understanding individual cluster folders](#understanding-individual-cluster-folders)
+  - [011 - Integrating RHACM with ArgoCD](#011---integrating-rhacm-with-argocd)
+    - [Applying the Manifests Using ArgoCD ApplicationSet](#applying-the-manifests-using-argocd-applicationset)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -696,3 +698,35 @@ In the directory `resources/ocp-clusters/sno01.telco.ocp.run`, you'll find sever
 - **07-nmstate.yaml:** The NMStateConfig custom resource defines the desired network configuration for a node using the NMState project. This can include configurations such as static IP addresses, DNS settings, and more.
 - **08-infraenv.yaml:** The InfraEnv custom resource is a part of the agent-based installation process for OpenShift. It defines environment specifics like SSH keys, agent selectors, and other configurations necessary to set up the infrastructure for the cluster deployment.
 - **09-baremetalhost.yaml:** This BareMetalHost custom resource is related to Metal3, a project focused on Kubernetes-native bare metal management. It provides the specifics of the physical host, like MAC address, BMC address, and more.
+
+## 011 - Integrating RHACM with ArgoCD
+The integration of Red Hat Advanced Cluster Management (RHACM) with ArgoCD allows you to leverage the strengths of both RHACM's multi-cluster management and ArgoCD's GitOps capabilities. In this section, we will look at the process to set up this integration.
+
+The directory `009-argocd-acm-integration` contains the ArgoCD ApplicationSet manifest which will determine which clusters the following resources should be applied to. The resources are then provided in the `resources/rhacm-argocd-integration` directory.
+
+Let's break down each of the manifests in resources/rhacm-argocd-integration:
+
+- **01-managedclusterset.yaml:** This manifest defines a `ManagedClusterSet` named `gitops-clusters`. This is essentially a grouping mechanism in RHACM to categorize clusters.
+- **02-managedclustersetbinding.yaml:** The `ManagedClusterSetBinding` binds the aforementioned cluster set to the `openshift-gitops` namespace. This implies that ArgoCD in the `openshift-gitops` namespace can manage clusters part of the gitops-clusters set.
+- **03-placement.yaml:** This manifest defines a `Placement` named `gitops-clusters` that specifies the criteria for cluster selection. In this case, the cluster with a label key app that has a value webapp will be matched.
+```
+  - requiredClusterSelector:
+      labelSelector:
+        matchExpressions:
+        - key: app
+          operator: "In"
+          values:
+          - webapp
+```
+- **04-gitopscluster.yaml:** The `GitOpsCluster` kind is a way of defining the integration point between RHACM and ArgoCD. Here, we specify that ArgoCD from the `openshift-gitops` namespace should manage clusters matching the aforementioned `Placement`.
+
+The `argocd.argoproj.io/sync-wave` annotations ensure a sequence for the application of resources, defining the order in which resources are synchronized by ArgoCD.
+
+### Applying the Manifests Using ArgoCD ApplicationSet
+Use following command to enable this RHACM and ArgoCD Integration.
+```
+oc apply -f 009-argocd-acm-integration/01-applicationset.yaml
+```
+
+Once the `ApplicationSet` resource is applied, ArgoCD will dynamically generate `Application` resources based on the defined template and generator within the `ApplicationSet` definition.
+

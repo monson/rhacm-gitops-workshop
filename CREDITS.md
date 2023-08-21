@@ -1,2 +1,3 @@
-- Sushy Tool Reference [Brandon B. Jozsa](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/)
+- [Sushy-Emulator: Redfish for the Virtualization Nation](https://cloudcult.dev/sushy-emulator-redfish-for-the-virtualization-nation/)
 - [Local Storage and ODF Installation](https://access.redhat.com/articles/5692201)
+- [How to deploy multicluster applications with OpenShift and GitOps](https://www.redhat.com/architect/multi-cluster-deployment-kubernetes-gitops)

@@ -1,0 +1,27 @@
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: acm-argocd-integration
+  namespace: openshift-gitops
+spec:
+  generators:
+  - list:
+      elements: 
+      - name: in-cluster 
+  template:
+    metadata:
+      name: acm-argocd-integration-{{name}}
+    spec:
+      project: advance-cluster-management
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: https://github.com/pandeybk/rhacm-gitops-workshop.git
+        targetRevision: main
+        path: resources/rhacm-argocd-integration
+      destination:
+        server: https://kubernetes.default.svc
