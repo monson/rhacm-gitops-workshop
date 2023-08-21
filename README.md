@@ -43,6 +43,12 @@
   - [008 - Secret Management with Vault and External Secrets Operator](#008---secret-management-with-vault-and-external-secrets-operator)
     - [Deploying Vault and External Secrets Operator](#deploying-vault-and-external-secrets-operator)
     - [Initializing and Unsealing Vault](#initializing-and-unsealing-vault)
+  - [009 - Setting Up Virtual Machines (Simulation of Bare Metal Installation)](#009---setting-up-virtual-machines-simulation-of-bare-metal-installation)
+    - [Understanding the VM Creation Script:](#understanding-the-vm-creation-script)
+      - [Environment Variables Setup:](#environment-variables-setup)
+      - [Image Creation:](#image-creation)
+      - [VM Deployment:](#vm-deployment)
+      - [Executing the VM Creation Scripts:](#executing-the-vm-creation-scripts)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -532,7 +538,7 @@ path "secret/openshiftpullsecret" {
 EOF
 ```
 
-1. **Generate a Custom Token with the Defined Policy:** With the policy in place, we can create a custom token attached to it:
+2. **Generate a Custom Token with the Defined Policy:** With the policy in place, we can create a custom token attached to it:
 ```
 oc exec -ti vault-server-0 -- vault token create -policy=read-openshiftpullsecret
 ```
@@ -579,3 +585,75 @@ spec:
 ```
 
 Notice the `tokenSecretRef` section, which references the Kubernetes secret (`vault-token`) we created earlier. This ensures that the External Secrets Operator uses our custom token for authentication against the Vault.
+
+## 009 - Setting Up Virtual Machines (Simulation of Bare Metal Installation)
+In this section, we'll be setting up Virtual Machines (VMs) which act as a simulation of a bare metal installation for our OpenShift clusters. These VMs will later be used as targets for our OpenShift cluster installations through Red Hat Advanced Cluster Management (RHACM).
+
+### Understanding the VM Creation Script:
+We've provided scripts for the creation of each VM located under `resources/ocp-clusters`. Let's break down one of these scripts (`create-sno01.telco.ocp.run-vm.sh`) to understand its functionality:
+
+```
+export HUB_CLUSTER_NAME="hubztp"
+export CLUSTER_NAME="sno01"
+export NAME_BRIDGE="br0"
+export UUID="deed1e55-fe11-f0e5-0dd5-babb1ed1a010"
+export MAC="00:00:00:00:00:10"
+
+sudo qemu-img create -f qcow2 /opt/ssd/${HUB_CLUSTER_NAME}/${CLUSTER_NAME}.qcow2 200G
+
+sudo virt-install \
+  --name=${HUB_CLUSTER_NAME}-${CLUSTER_NAME} \
+  --uuid=${UUID} \
+  --ram=65536 \
+  --vcpus=16 \
+  --cpu host-passthrough \
+  --os-type linux \
+  --os-variant rhel8.0 \
+  --noreboot \
+  --events on_reboot=restart \
+  --noautoconsole \
+  --boot hd,cdrom \
+  --import \
+  --disk path=/opt/ssd/${HUB_CLUSTER_NAME}/${CLUSTER_NAME}.qcow2,size=20 \
+  --network type=direct,source=${NAME_BRIDGE},mac=${MAC},source_mode=bridge,model=virtio
+```
+
+#### Environment Variables Setup:
+
+- `HUB_CLUSTER_NAME`: The name of the central hub cluster.
+- `CLUSTER_NAME`: The specific name for the cluster VM we're creating.
+- `NAME_BRIDGE`: The name of the bridge interface to which the VM's network will be connected.
+- `UUID`: A unique identifier for the VM.
+- `MAC`: A unique MAC address for the VM's network interface.
+
+#### Image Creation:
+Using `qemu-img`, we're creating a qcow2 format image. This image acts as the VM's hard drive:
+
+```
+sudo qemu-img create -f qcow2 /opt/ssd/${HUB_CLUSTER_NAME}/${CLUSTER_NAME}.qcow2 200G
+```
+Here, we're allocating 200GB of space for this VM on our host's SSD.
+
+#### VM Deployment:
+We're using `virt-install` to create and start our VM:
+
+- `name`: Specifies the name of the VM.
+- `uuid`: Sets a unique identifier for the VM.
+- `ram`: Allocates 64GB of RAM to our VM.
+- `vcpus`: Sets the number of virtual CPUs.
+- `os-type & os-variant`: Define the type and variant of the operating system.
+- `disk`: Defines the path to the VM's hard drive and its size.
+- `network`: Configures the VM's network.
+
+After executing this script, a new VM will be initialized, which simulates a bare metal machine ready to have OpenShift installed on it.
+
+#### Executing the VM Creation Scripts:
+For our setup, we need to create multiple VMs. Execute the following commands to initialize them:
+
+```
+bash resources/ocp-clusters/create-sno01.telco.ocp.run-vm.sh
+bash resources/ocp-clusters/create-sno02.telco.ocp.run-vm.sh
+bash resources/ocp-clusters/create-sno03.telco.ocp.run-vm.sh
+```
+
+Once these VMs are set up, we'll leverage RHACM and GitOps practices to provision and manage our OpenShift clusters on these VMs in the upcoming sections.
