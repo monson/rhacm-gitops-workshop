@@ -49,6 +49,9 @@
       - [Image Creation:](#image-creation)
       - [VM Deployment:](#vm-deployment)
       - [Executing the VM Creation Scripts:](#executing-the-vm-creation-scripts)
+  - [010 - Deploying OCP Clusters using RHACM](#010---deploying-ocp-clusters-using-rhacm)
+    - [Understanding the OCP Clusters Manifests:](#understanding-the-ocp-clusters-manifests)
+    - [Understanding individual cluster folders](#understanding-individual-cluster-folders)
 
 # GitOps Demonstration with Red Hat Advanced Cluster Management (RHACM) and Assisted Installer
 
@@ -657,3 +660,39 @@ bash resources/ocp-clusters/create-sno03.telco.ocp.run-vm.sh
 ```
 
 Once these VMs are set up, we'll leverage RHACM and GitOps practices to provision and manage our OpenShift clusters on these VMs in the upcoming sections.
+
+## 010 - Deploying OCP Clusters using RHACM
+Red Hat Advanced Cluster Management (RHACM) provides capabilities to manage multiple Kubernetes clusters with a governance-driven approach. In our setup, we are using RHACM to deploy OCP (OpenShift Container Platform) clusters onto the Virtual Machines (VMs) we prepared in the previous step.
+
+### Understanding the OCP Clusters Manifests:
+Within the `008-ocp-clusters` directory, we have multiple manifests that help configure and set up the OCP clusters:
+
+- **00-namespace.yaml:** This file defines a namespace ztp-clusters where all resources related to our Zero Touch Provisioning (ZTP) clusters will reside.
+- **01-channel.yaml:** Represents a Channel resource. A channel in RHACM points to the source of truth (like a Git repository) for your desired state. This channel points to a specific GitHub repository which will store the configurations.
+- **02-git-secrets.yaml:** This secret contains authentication information to access the GitHub repository. Specifically, it has your GitHub username and a developer API key, enabling RHACM to pull configurations from private repositories.
+- **03-placementrule.yaml:** Defines a PlacementRule resource that specifies the conditions for cluster selection. Here, it is configured to match the local hub cluster.
+```
+  clusterSelector:
+    matchLabels:
+      local-cluster: 'true'
+```
+- **04-clusterrolebinding.yaml:** Grants necessary permissions to users for RHACM operations. This binding grants the subscription-admin role to both kube:admin and system:admin.
+- **Application & Subscription:** The manifests for each individual OCP cluster to be created are stored in their respective directories, for example `resources/ocp-clusters/sno01.telco.ocp.run`.
+  - Files like `sno01-telco-ocp-run.yaml` or `sno02-telco-ocp-run.yaml` define Application resources. These resources represent logical applications in RHACM and are associated with Subscriptions, which represent the deployment of resources from the repository.
+  - Associated Subscription manifests, like `cluster-sno01-tor-subscription-1`, define the relationship between the application, its source repository, and the target clusters where it should be deployed.
+  - For example if you look at the file you will notice following annotations `apps.open-cluster-management.io/git-branch: main`: This annotation specifies the branch in the Git repository that RHACM should reference. It is directing the system to use the main branch, ensuring that configurations from this specific branch are applied to the managed clusters.
+  - and annotations `apps.open-cluster-management.io/git-path: resources/ocp-clusters/sno01.telco.ocp.run`: Directs RHACM to a specific directory or path within the Git repository. By pointing to `resources/ocp-clusters/sno01.telco.ocp.run`, it specifies where to locate the desired resources or configurations for the particular cluster setup.
+
+### Understanding individual cluster folders
+In the directory `resources/ocp-clusters/sno01.telco.ocp.run`, you'll find several important configuration files and resources that further detail the cluster setup and related configurations:
+
+- **00-namespace.yaml:** This YAML file defines a Kubernetes Namespace named `sno01`. Namespaces are used to partition or isolate different parts of the cluster.
+- **01-external-pull-secret.yaml:** This YAML sets up an ExternalSecret which integrate with an external secret manager (e.g., Vault) to provide OpenShift with the necessary pull secret for accessing private container images. Eventually it will create kubernetes secrets, this mean you can also create kubernetes secrets directly instead of creating `ExternalSecret` object.
+- **01-unsealed-bmc-secret.yaml:** This YAML defines a Kubernetes Secret that hold credentials for Baseboard Management Controller (BMC). BMC allows for out-of-band management of a server.
+- **03-agentclusterinstall.yaml:** The AgentClusterInstall custom resource is used to specify requirements and settings for installing OpenShift. This resource has information on networking, the desired version of OpenShift to install, SSH keys, and more.
+- **04-clusterdeployment.yaml:** The ClusterDeployment custom resource describes the desired state of an OpenShift cluster, such as the domain, cluster name, platform specifics, and how it should be installed. It references the AgentClusterInstall resource for detailed installation instructions.
+- **05-klusterlet.yaml:** KlusterletAddonConfig custom resource is related to Open Cluster Management. This provides specifications for different add-ons available when integrating with the Open Cluster Management framework.
+- **06-managedcluster.yaml:** The ManagedCluster custom resource is a representation of a cluster in the Open Cluster Management framework. It provides specifications on how the hub cluster should manage or interact with this managed cluster.
+- **07-nmstate.yaml:** The NMStateConfig custom resource defines the desired network configuration for a node using the NMState project. This can include configurations such as static IP addresses, DNS settings, and more.
+- **08-infraenv.yaml:** The InfraEnv custom resource is a part of the agent-based installation process for OpenShift. It defines environment specifics like SSH keys, agent selectors, and other configurations necessary to set up the infrastructure for the cluster deployment.
+- **09-baremetalhost.yaml:** This BareMetalHost custom resource is related to Metal3, a project focused on Kubernetes-native bare metal management. It provides the specifics of the physical host, like MAC address, BMC address, and more.
