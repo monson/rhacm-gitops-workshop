@@ -6,5 +6,4 @@ resources:
   - policy-namespace.yaml
   - policy-role.yaml
   - policy-complianceoperator.yaml
-  # - policy-openshift-gitops-operator.yaml
 
