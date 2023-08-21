@@ -497,9 +497,13 @@ oc exec -ti vault-server-0 -- vault operator unseal <key_3>
 - **Join Other Vault Nodes to the Cluster and Unseal:** Here, other Vault instances are joined to the main instance for high availability, and then they are unsealed.
 ```
 oc exec -ti vault-server-1 -- vault operator raft join http://vault-server-0.vault-server-internal:8200
-oc exec -ti vault-server-1 -- vault operator unseal
+oc exec -ti vault-server-1 -- vault operator unseal <key_1>
+oc exec -ti vault-server-1 -- vault operator unseal <key_2>
+oc exec -ti vault-server-1 -- vault operator unseal <key_3>
 oc exec -ti vault-server-2 -- vault operator raft join http://vault-server-0.vault-server-internal:8200
-oc exec -ti vault-server-2 -- vault operator unseal
+oc exec -ti vault-server-2 -- vault operator unseal <key_1>
+oc exec -ti vault-server-2 -- vault operator unseal <key_2>
+oc exec -ti vault-server-2 -- vault operator unseal <key_3>
 ```
 
 - **Login to Vault Using the Root Token:** Now, login to Vault using the root token that was generated during initialization.
@@ -512,7 +516,7 @@ oc exec -ti vault-server-0 -- vault login <root_token>
 oc exec -ti vault-server-0 -- vault operator raft list-peers
 ```
 
-- **Setup Key-Value Secrets Store in Vault and Add a Sample Secret:** Enable the KV secrets store and add a image pull secret.
+- **Setup Key-Value Secrets Store in Vault and Add a Sample Secret:** Enable the KV secrets store and add a image pull secret. You can obtain the image pull secret from the [Red Hat OpenShift Cluster Manager](https://console.redhat.com/openshift/install/pull-secret).
 ```
 oc exec -ti vault-server-0 -- vault secrets enable -path=secret/ kv
 oc exec -ti vault-server-0 -- vault kv put secret/openshiftpullsecret dockerconfigjson='{"auths":{...}}'
@@ -528,7 +532,7 @@ path "secret/openshiftpullsecret" {
 EOF
 ```
 
-2. **Generate a Custom Token with the Defined Policy:** With the policy in place, we can create a custom token attached to it:
+1. **Generate a Custom Token with the Defined Policy:** With the policy in place, we can create a custom token attached to it:
 ```
 oc exec -ti vault-server-0 -- vault token create -policy=read-openshiftpullsecret
 ```
@@ -552,11 +556,26 @@ oc create secret generic vault-token --from-literal=token="<custom_token>" -n va
 
 Remember to replace placeholders like `<custom_token>` with the actual values from your environment.
 
+This token and kubernetes is referenced from `ClusterSecretStore`, which is a custom resource provided by the External Secrets Operator. It allows Kubernetes to understand where external secrets (in this case, in Vault) are located and how to authenticate to access them. Take a look on file `resources/secret-management/external-secrets-config/cluster-secret-store.yaml`, here's how our custom token is utilized:
 
+```
+apiVersion: external-secrets.io/v1alpha1
+kind: ClusterSecretStore
+metadata:
+  name: vault-backend
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  provider:
+    vault:
+      server: "http://vault-server-internal.vault:8200"
+      path: "secret"
+      version: "v1"
+      auth:
+        tokenSecretRef:
+          name: "vault-token"
+          key: "token"
+          namespace: vault
+```
 
-
-
-
-
-
-
+Notice the `tokenSecretRef` section, which references the Kubernetes secret (`vault-token`) we created earlier. This ensures that the External Secrets Operator uses our custom token for authentication against the Vault.
