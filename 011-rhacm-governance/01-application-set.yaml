@@ -25,3 +25,4 @@ spec:
         path: resources/rhacm-governance
       destination:
         server: 'https://kubernetes.default.svc'
+        namespace: "ztp-clusters"
