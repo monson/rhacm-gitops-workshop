@@ -3,7 +3,8 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: binding-policy-limitrange
-  namespace: null
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 placementRef:
   name: placement-policy-limitrange
   kind: PlacementRule
@@ -17,7 +18,8 @@ apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
   name: placement-policy-limitrange
-  namespace: null
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   clusterConditions:
     - status: 'True'
@@ -33,8 +35,8 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-limitrange
-  namespace: null
   annotations:
+    argocd.argoproj.io/sync-wave: "3"
     policy.open-cluster-management.io/standards: NIST
     policy.open-cluster-management.io/categories: PR.IP Information Protection Processes and Procedures
     policy.open-cluster-management.io/controls: PR.IP-1 Baseline Configuration
