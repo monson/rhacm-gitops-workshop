@@ -14,6 +14,9 @@ spec:
       - name: vault-server
         path: resources/secret-management/vault-server
         destNamespace: vault
+      - name: external-secrets-vault-config
+        path: resources/secret-management/external-secrets-config
+        destNamespace: external-secrets
   template:
     metadata:
       name: secret-management-{{name}}
