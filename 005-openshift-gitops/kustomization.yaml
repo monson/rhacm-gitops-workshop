@@ -4,3 +4,4 @@ resources:
   - 00-namespace.yaml
   - 01-subscription.yaml
   - 02-rbac-multiclusterhub.yaml
+  - 02-argocd-rbac-cluster-admin.yaml
