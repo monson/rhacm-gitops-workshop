@@ -1,3 +1,4 @@
 resources:
+  - 00-namespace.yaml
   - all-in-one-template.yaml
   - routes.yaml
