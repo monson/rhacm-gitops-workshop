@@ -5,8 +5,8 @@ pull-vault:
 	helm repo add hashicorp https://helm.releases.hashicorp.com || true
 	helm pull hashicorp/vault  --untar --untardir=resources/secret-management/vault-server
 	mv resources/secret-management/vault-server/vault resources/secret-management/vault-server/chart
-	helm template vault-server  resources/secret-management/vault-server/chart -f resources/secret-management/vault-server/override-values.yaml  --namespace vault > resources/secret-management/vault-server/all-in-one-template.yaml
-	# helm template vault-server  resources/secret-management/vault-server/chart -f resources/secret-management/vault-server/override-ha-values.yaml  --namespace vault > resources/secret-management/vault-server/all-in-one-template.yaml
+	# helm template vault-server  resources/secret-management/vault-server/chart -f resources/secret-management/vault-server/override-values.yaml  --namespace vault > resources/secret-management/vault-server/all-in-one-template.yaml
+	helm template vault-server  resources/secret-management/vault-server/chart -f resources/secret-management/vault-server/override-ha-values.yaml  --namespace vault > resources/secret-management/vault-server/all-in-one-template.yaml
 
 
 pull-external-secrets:
