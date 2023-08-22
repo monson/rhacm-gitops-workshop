@@ -1,8 +1,37 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sno01
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: hub-cluster
+  namespace: sno01
+  labels:
+    app: ztp-application
+spec:
+  clusterSelector:
+    matchLabels:
+      local-cluster: 'true'
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  annotations:
+    apps.open-cluster-management.io/reconcile-rate: high
+  name: ztp-repository
+  namespace: sno01
+spec:
+  type: Git
+  pathname: 'https://github.com/pandeybk/rhacm-gitops-workshop.git'
+  insecureSkipVerify: false
+---
 apiVersion: app.k8s.io/v1beta1
 kind: Application
 metadata:
   name: cluster-sno01-telco-ocp-run
-  namespace: ztp-clusters
+  namespace: sno01
 spec:
   componentKinds:
   - group: apps.open-cluster-management.io
@@ -25,9 +54,9 @@ metadata:
   labels:
     app: cluster-sno01-telco-ocp-run
   name: cluster-sno01-tor-subscription-1
-  namespace: ztp-clusters
+  namespace: sno01
 spec:
-  channel: ztp-clusters/ztp-repository
+  channel: sno01/ztp-repository
   placement:
     placementRef:
       kind: PlacementRule
