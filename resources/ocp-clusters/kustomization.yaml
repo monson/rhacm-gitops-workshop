@@ -1,3 +1,4 @@
+namespace: sno01
 resources:
 - sno01.telco.ocp.run
 - sno02.telco.ocp.run
