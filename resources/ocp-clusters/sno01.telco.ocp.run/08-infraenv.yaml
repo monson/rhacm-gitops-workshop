@@ -19,3 +19,4 @@ spec:
   nmStateConfigLabelSelector:
     matchLabels:
       cluster-name: sno01
+  cpuArchitecture: x86_64
