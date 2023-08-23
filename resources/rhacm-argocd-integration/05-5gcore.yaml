@@ -30,4 +30,9 @@ spec:
       labelSelector:
         matchLabels:
           telcoapp: 5gcore
-
+      claimSelector:
+        matchExpressions:
+          - key: openshiftversion-major-minor
+            operator: In
+            values:
+              - "4.13"
