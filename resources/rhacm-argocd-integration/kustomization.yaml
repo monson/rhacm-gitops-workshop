@@ -7,3 +7,4 @@ resources:
 - 02-managedclustersetbinding.yaml
 - 03-placement.yaml
 - 04-gitopscluster.yaml
+- 05-5gcore.yaml
