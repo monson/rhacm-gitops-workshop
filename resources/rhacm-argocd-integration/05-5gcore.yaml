@@ -28,8 +28,6 @@ spec:
   predicates:
   - requiredClusterSelector:
       labelSelector:
-        matchExpressions:
-        - key: telcoapp
-          operator: "In"
-          values:
-          - 5gcore
+        matchLabels:
+          telcoapp: 5gcore
+
