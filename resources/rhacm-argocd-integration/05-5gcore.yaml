@@ -22,7 +22,7 @@ kind: Placement
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "5"
-  name: gitops-clusters
+  name: 5gcore
   namespace: openshift-gitops
 spec:
   predicates:
