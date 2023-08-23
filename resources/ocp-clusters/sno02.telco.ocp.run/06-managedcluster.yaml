@@ -17,6 +17,8 @@ metadata:
     # Deploy 5gcores
     sites: "edgesite"
 
+    telcoapp: 5gcore
+
 spec:
   hubAcceptsClient: true
   leaseDurationSeconds: 60
