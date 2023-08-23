@@ -25,6 +25,9 @@ metadata:
   name: 5gcore
   namespace: openshift-gitops
 spec:
+  numberOfClusters: 3
+  clusterSets:
+    - 5gcore
   predicates:
   - requiredClusterSelector:
       labelSelector:
