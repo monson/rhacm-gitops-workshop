@@ -14,6 +14,7 @@ spec:
     name: sno02
     cloud: hybrid
     vendor: Libvirt
+    telcoapp: 5gcore
   clusterName: sno02
   clusterNamespace: sno02
   iamPolicyController:
