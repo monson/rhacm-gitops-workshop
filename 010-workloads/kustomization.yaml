@@ -1,3 +1,4 @@
 resources:
+- 00-app-project.yaml
 - bookinfo-dev.yaml
 - podinfo-dev.yaml
